@@ -43,7 +43,7 @@ namespace RevitParametericDesignPreviewTool
         private Document rvtDoc = null;
         private RApplication rvtApp = null;
         private UIApplication rvtUIApp = null;
-        private ParametericDesignDummyViewEventHandler dbViewEventHandler = null;
+        private ParametericDesignViewEventHandler dbViewEventHandler = null;
         private ExternalEvent dbViewEvent = null;
 
         public ElementId CurrentDBViewId
@@ -60,7 +60,7 @@ namespace RevitParametericDesignPreviewTool
             this.rvtDoc = this.rvtUIApp.ActiveUIDocument.Document;
             this.targetElementId = targetElementId;
 
-            this.dbViewEventHandler = new ParametericDesignDummyViewEventHandler(this.rvtPreviewControlHost, targetElementId);
+            this.dbViewEventHandler = new ParametericDesignViewEventHandler(this.rvtPreviewControlHost, targetElementId);
             this.dbViewEvent = ExternalEvent.Create(this.dbViewEventHandler);
         }
 
@@ -114,6 +114,11 @@ namespace RevitParametericDesignPreviewTool
         {
             this.dbViewEventHandler.DisposingView = true;
             this.dbViewEvent.Raise();
+        }
+
+        private void btnApplyChange_Click(object sender, EventArgs e)
+        {
+
         }
     }
 

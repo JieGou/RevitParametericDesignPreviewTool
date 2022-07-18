@@ -39,6 +39,7 @@
             this.cmbRebarShape = new System.Windows.Forms.ComboBox();
             this.numInputRebarSpacing = new System.Windows.Forms.NumericUpDown();
             this.lbTitle = new System.Windows.Forms.Label();
+            this.btnApplyChange = new System.Windows.Forms.Button();
             this.mainTableLayoutPanel.SuspendLayout();
             this.leftSideTableLayoutPanel.SuspendLayout();
             this.parametersTableLayoutPanel.SuspendLayout();
@@ -98,14 +99,16 @@
             this.parametersTableLayoutPanel.Controls.Add(this.cmbRebarType, 1, 1);
             this.parametersTableLayoutPanel.Controls.Add(this.cmbRebarShape, 1, 2);
             this.parametersTableLayoutPanel.Controls.Add(this.numInputRebarSpacing, 1, 0);
+            this.parametersTableLayoutPanel.Controls.Add(this.btnApplyChange, 1, 3);
             this.parametersTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.parametersTableLayoutPanel.Location = new System.Drawing.Point(3, 63);
             this.parametersTableLayoutPanel.Name = "parametersTableLayoutPanel";
-            this.parametersTableLayoutPanel.RowCount = 4;
+            this.parametersTableLayoutPanel.RowCount = 5;
             this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5F));
             this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5F));
             this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 70F));
+            this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5F));
+            this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 65F));
             this.parametersTableLayoutPanel.Size = new System.Drawing.Size(281, 539);
             this.parametersTableLayoutPanel.TabIndex = 0;
             // 
@@ -179,6 +182,17 @@
             this.lbTitle.Text = "Stirrups";
             this.lbTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // btnApplyChange
+            // 
+            this.btnApplyChange.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnApplyChange.Location = new System.Drawing.Point(87, 162);
+            this.btnApplyChange.Name = "btnApplyChange";
+            this.btnApplyChange.Size = new System.Drawing.Size(191, 20);
+            this.btnApplyChange.TabIndex = 7;
+            this.btnApplyChange.Text = "Apply";
+            this.btnApplyChange.UseVisualStyleBackColor = true;
+            this.btnApplyChange.Click += new System.EventHandler(this.btnApplyChange_Click);
+            // 
             // ParametericDesignControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -212,5 +226,6 @@
         private System.Windows.Forms.ComboBox cmbRebarType;
         private System.Windows.Forms.ComboBox cmbRebarShape;
         private System.Windows.Forms.NumericUpDown numInputRebarSpacing;
+        private System.Windows.Forms.Button btnApplyChange;
     }
 }

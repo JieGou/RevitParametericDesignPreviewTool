@@ -28,6 +28,7 @@ using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using Autodesk.Revit.UI.Selection;
 
 namespace RevitParametericDesignPreviewTool
 {
@@ -46,7 +47,7 @@ namespace RevitParametericDesignPreviewTool
 
             try
             {
-                selRef = uiDocument.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element);
+                selRef = uiDocument.Selection.PickObject(ObjectType.Element, new StructuralColumnSelectionFilter());
 
                 if (selRef == null)
                     return Result.Cancelled;
@@ -66,7 +67,7 @@ namespace RevitParametericDesignPreviewTool
                 }
 
                 ParametericDesignControl form = new ParametericDesignControl(commandData.Application.Application, element.Id);
-                form.Show();
+                form.Show(new RevitWindowHndle(commandData.Application.MainWindowHandle));
             }
             catch (Exception e)
             {
@@ -79,6 +80,32 @@ namespace RevitParametericDesignPreviewTool
             //}
 
             return Result.Succeeded;
+        }
+
+        public class RevitWindowHndle : System.Windows.Forms.IWin32Window
+        {
+            public IntPtr Handle { get; private set; }
+
+            public RevitWindowHndle(IntPtr handle)
+            {
+                this.Handle = handle;
+            }
+        }
+
+        private class StructuralColumnSelectionFilter : ISelectionFilter
+        {
+            public bool AllowElement(Element elem)
+            {
+                if (elem.Category.Id.IntegerValue == BuiltInCategory.OST_StructuralColumns.GetHashCode())
+                    return true;
+
+                return false;
+            }
+
+            public bool AllowReference(Reference reference, XYZ position)
+            {
+                return false;
+            }
         }
     }
 }

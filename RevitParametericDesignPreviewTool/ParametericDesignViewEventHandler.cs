@@ -31,7 +31,7 @@ using Autodesk.Revit.UI;
 
 namespace RevitParametericDesignPreviewTool
 {
-    public class ParametericDesignDummyViewEventHandler : IExternalEventHandler
+    public class ParametericDesignViewEventHandler : IExternalEventHandler
     {
         private System.Windows.Forms.Integration.ElementHost rvtPreviewControlHost;
         private ElementId targetElementId;
@@ -39,7 +39,7 @@ namespace RevitParametericDesignPreviewTool
         public bool DisposingView { get; set; }
         public ElementId ViewId { get; private set; }
 
-        public ParametericDesignDummyViewEventHandler(System.Windows.Forms.Integration.ElementHost rvtPreviewControlHost, ElementId targetElementId)
+        public ParametericDesignViewEventHandler(System.Windows.Forms.Integration.ElementHost rvtPreviewControlHost, ElementId targetElementId)
         {
             this.rvtPreviewControlHost = rvtPreviewControlHost;
             this.targetElementId = targetElementId;
@@ -58,9 +58,27 @@ namespace RevitParametericDesignPreviewTool
 
                 if (view == null) throw new InvalidOperationException("Failed to create 3D view for ParametericDesignControl");
 
-                view.IsolateElementTemporary(this.targetElementId);
-                view.ConvertTemporaryHideIsolateToPermanent();
+                view.Name = "Parameteric Design View";
+                var isolatingIds = new List<ElementId>();
+                isolatingIds.Add(this.targetElementId);
 
+                var targetElement = doc.GetElement(this.targetElementId);
+                var dependentIds = targetElement.GetDependentElements(null);
+                isolatingIds.AddRange(dependentIds);
+
+                foreach (var dependentId in dependentIds)
+                {
+                    var rebarElem = doc.GetElement(dependentId) as Autodesk.Revit.DB.Structure.Rebar;
+                    if (rebarElem?.Category.Id.IntegerValue == BuiltInCategory.OST_Rebar.GetHashCode())
+                    {
+                        rebarElem.SetSolidInView(view, true);
+                    }
+                }
+
+                view.IsolateElementsTemporary(isolatingIds);
+                view.ConvertTemporaryHideIsolateToPermanent();
+                view.DisplayStyle = DisplayStyle.Wireframe;
+                view.DetailLevel = ViewDetailLevel.Fine;
                 this.ViewId = view.Id;
 
                 return view;
@@ -70,7 +88,7 @@ namespace RevitParametericDesignPreviewTool
         public void Execute(UIApplication app)
         {
             Document doc = app.ActiveUIDocument.Document;
-            var message = this.DisposingView ? "Delete ParametericDesignControl DBView" : "Create ParametericDesignControl DBView";
+            var message = this.DisposingView ? "Delete Parameteric Design View" : "Create Parameteric Design View";
             using (var trans = new Transaction(doc, message))
             {
                 trans.Start();
@@ -101,7 +119,7 @@ namespace RevitParametericDesignPreviewTool
 
         public string GetName()
         {
-            return "ParametericDesignControl DBView event hanlder";
+            return "Parameteric Design View event hanlder";
         }
     }
 }

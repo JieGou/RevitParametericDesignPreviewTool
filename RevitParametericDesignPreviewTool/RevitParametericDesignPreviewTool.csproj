@@ -64,7 +64,7 @@
     <Compile Include="ParametericDesignControl.Designer.cs">
       <DependentUpon>ParametericDesignControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="ParametericDesignDummyViewEventHandler.cs" />
+    <Compile Include="ParametericDesignViewEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
