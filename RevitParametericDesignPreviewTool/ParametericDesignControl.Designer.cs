@@ -38,12 +38,19 @@
             this.cmbRebarType = new System.Windows.Forms.ComboBox();
             this.cmbRebarShape = new System.Windows.Forms.ComboBox();
             this.numInputRebarSpacing = new System.Windows.Forms.NumericUpDown();
-            this.lbTitle = new System.Windows.Forms.Label();
             this.btnApplyChange = new System.Windows.Forms.Button();
+            this.lbTitle = new System.Windows.Forms.Label();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.pbSpinner = new System.Windows.Forms.PictureBox();
+            this.lbRebarCoverSpace = new System.Windows.Forms.Label();
+            this.numInputRebarCoverSpace = new System.Windows.Forms.NumericUpDown();
             this.mainTableLayoutPanel.SuspendLayout();
             this.leftSideTableLayoutPanel.SuspendLayout();
             this.parametersTableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numInputRebarSpacing)).BeginInit();
+            this.tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbSpinner)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numInputRebarCoverSpace)).BeginInit();
             this.SuspendLayout();
             // 
             // mainTableLayoutPanel
@@ -54,6 +61,7 @@
             this.mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.mainTableLayoutPanel.Controls.Add(this.rvtPreviewControlHost, 2, 0);
             this.mainTableLayoutPanel.Controls.Add(this.leftSideTableLayoutPanel, 0, 0);
+            this.mainTableLayoutPanel.Controls.Add(this.tableLayoutPanel1, 1, 0);
             this.mainTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainTableLayoutPanel.Location = new System.Drawing.Point(0, 0);
             this.mainTableLayoutPanel.Name = "mainTableLayoutPanel";
@@ -94,21 +102,24 @@
             this.parametersTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
             this.parametersTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70F));
             this.parametersTableLayoutPanel.Controls.Add(this.lbRebarSpacing, 0, 0);
-            this.parametersTableLayoutPanel.Controls.Add(this.lbRebarTyep, 0, 1);
-            this.parametersTableLayoutPanel.Controls.Add(this.lbRebarShape, 0, 2);
-            this.parametersTableLayoutPanel.Controls.Add(this.cmbRebarType, 1, 1);
-            this.parametersTableLayoutPanel.Controls.Add(this.cmbRebarShape, 1, 2);
             this.parametersTableLayoutPanel.Controls.Add(this.numInputRebarSpacing, 1, 0);
-            this.parametersTableLayoutPanel.Controls.Add(this.btnApplyChange, 1, 3);
+            this.parametersTableLayoutPanel.Controls.Add(this.btnApplyChange, 1, 4);
+            this.parametersTableLayoutPanel.Controls.Add(this.cmbRebarShape, 1, 3);
+            this.parametersTableLayoutPanel.Controls.Add(this.lbRebarShape, 0, 3);
+            this.parametersTableLayoutPanel.Controls.Add(this.lbRebarTyep, 0, 2);
+            this.parametersTableLayoutPanel.Controls.Add(this.cmbRebarType, 1, 2);
+            this.parametersTableLayoutPanel.Controls.Add(this.lbRebarCoverSpace, 0, 1);
+            this.parametersTableLayoutPanel.Controls.Add(this.numInputRebarCoverSpace, 1, 1);
             this.parametersTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.parametersTableLayoutPanel.Location = new System.Drawing.Point(3, 63);
             this.parametersTableLayoutPanel.Name = "parametersTableLayoutPanel";
-            this.parametersTableLayoutPanel.RowCount = 5;
+            this.parametersTableLayoutPanel.RowCount = 6;
+            this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5F));
             this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5F));
             this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5F));
             this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5F));
-            this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 65F));
+            this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 60F));
             this.parametersTableLayoutPanel.Size = new System.Drawing.Size(281, 539);
             this.parametersTableLayoutPanel.TabIndex = 0;
             // 
@@ -120,14 +131,14 @@
             this.lbRebarSpacing.Name = "lbRebarSpacing";
             this.lbRebarSpacing.Size = new System.Drawing.Size(78, 26);
             this.lbRebarSpacing.TabIndex = 0;
-            this.lbRebarSpacing.Text = "Spacing";
+            this.lbRebarSpacing.Text = "Spacing (mm)";
             this.lbRebarSpacing.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lbRebarTyep
             // 
             this.lbRebarTyep.AutoSize = true;
             this.lbRebarTyep.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbRebarTyep.Location = new System.Drawing.Point(3, 26);
+            this.lbRebarTyep.Location = new System.Drawing.Point(3, 52);
             this.lbRebarTyep.Name = "lbRebarTyep";
             this.lbRebarTyep.Size = new System.Drawing.Size(78, 26);
             this.lbRebarTyep.TabIndex = 1;
@@ -138,7 +149,7 @@
             // 
             this.lbRebarShape.AutoSize = true;
             this.lbRebarShape.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbRebarShape.Location = new System.Drawing.Point(3, 52);
+            this.lbRebarShape.Location = new System.Drawing.Point(3, 78);
             this.lbRebarShape.Name = "lbRebarShape";
             this.lbRebarShape.Size = new System.Drawing.Size(78, 107);
             this.lbRebarShape.TabIndex = 2;
@@ -148,7 +159,7 @@
             // 
             this.cmbRebarType.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cmbRebarType.FormattingEnabled = true;
-            this.cmbRebarType.Location = new System.Drawing.Point(87, 29);
+            this.cmbRebarType.Location = new System.Drawing.Point(87, 55);
             this.cmbRebarType.Name = "cmbRebarType";
             this.cmbRebarType.Size = new System.Drawing.Size(191, 21);
             this.cmbRebarType.TabIndex = 4;
@@ -157,7 +168,7 @@
             // 
             this.cmbRebarShape.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cmbRebarShape.FormattingEnabled = true;
-            this.cmbRebarShape.Location = new System.Drawing.Point(87, 55);
+            this.cmbRebarShape.Location = new System.Drawing.Point(87, 81);
             this.cmbRebarShape.Name = "cmbRebarShape";
             this.cmbRebarShape.Size = new System.Drawing.Size(191, 21);
             this.cmbRebarShape.TabIndex = 5;
@@ -165,10 +176,35 @@
             // numInputRebarSpacing
             // 
             this.numInputRebarSpacing.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numInputRebarSpacing.Increment = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
             this.numInputRebarSpacing.Location = new System.Drawing.Point(87, 3);
+            this.numInputRebarSpacing.Maximum = new decimal(new int[] {
+            200,
+            0,
+            0,
+            0});
             this.numInputRebarSpacing.Name = "numInputRebarSpacing";
             this.numInputRebarSpacing.Size = new System.Drawing.Size(191, 20);
             this.numInputRebarSpacing.TabIndex = 6;
+            this.numInputRebarSpacing.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            // 
+            // btnApplyChange
+            // 
+            this.btnApplyChange.Location = new System.Drawing.Point(87, 188);
+            this.btnApplyChange.Name = "btnApplyChange";
+            this.btnApplyChange.Size = new System.Drawing.Size(191, 20);
+            this.btnApplyChange.TabIndex = 7;
+            this.btnApplyChange.Text = "Apply";
+            this.btnApplyChange.UseVisualStyleBackColor = true;
+            this.btnApplyChange.Click += new System.EventHandler(this.btnApplyChange_Click);
             // 
             // lbTitle
             // 
@@ -182,16 +218,66 @@
             this.lbTitle.Text = "Stirrups";
             this.lbTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // btnApplyChange
+            // tableLayoutPanel1
             // 
-            this.btnApplyChange.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnApplyChange.Location = new System.Drawing.Point(87, 162);
-            this.btnApplyChange.Name = "btnApplyChange";
-            this.btnApplyChange.Size = new System.Drawing.Size(191, 20);
-            this.btnApplyChange.TabIndex = 7;
-            this.btnApplyChange.Text = "Apply";
-            this.btnApplyChange.UseVisualStyleBackColor = true;
-            this.btnApplyChange.Click += new System.EventHandler(this.btnApplyChange_Click);
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.pbSpinner, 0, 2);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(296, 3);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 6;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(67, 605);
+            this.tableLayoutPanel1.TabIndex = 2;
+            // 
+            // pbSpinner
+            // 
+            this.pbSpinner.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pbSpinner.ErrorImage = global::RevitParametericDesignPreviewTool.Properties.Resources.Spinner;
+            this.pbSpinner.Image = global::RevitParametericDesignPreviewTool.Properties.Resources.Spinner;
+            this.pbSpinner.InitialImage = global::RevitParametericDesignPreviewTool.Properties.Resources.Spinner;
+            this.pbSpinner.Location = new System.Drawing.Point(3, 203);
+            this.pbSpinner.Name = "pbSpinner";
+            this.pbSpinner.Size = new System.Drawing.Size(61, 94);
+            this.pbSpinner.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pbSpinner.TabIndex = 0;
+            this.pbSpinner.TabStop = false;
+            this.pbSpinner.Visible = false;
+            // 
+            // lbRebarCoverSpace
+            // 
+            this.lbRebarCoverSpace.AutoSize = true;
+            this.lbRebarCoverSpace.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbRebarCoverSpace.Location = new System.Drawing.Point(3, 26);
+            this.lbRebarCoverSpace.Name = "lbRebarCoverSpace";
+            this.lbRebarCoverSpace.Size = new System.Drawing.Size(78, 26);
+            this.lbRebarCoverSpace.TabIndex = 8;
+            this.lbRebarCoverSpace.Text = "Cover (mm)";
+            this.lbRebarCoverSpace.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // numInputRebarCoverSpace
+            // 
+            this.numInputRebarCoverSpace.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numInputRebarCoverSpace.Location = new System.Drawing.Point(87, 29);
+            this.numInputRebarCoverSpace.Maximum = new decimal(new int[] {
+            150,
+            0,
+            0,
+            0});
+            this.numInputRebarCoverSpace.Name = "numInputRebarCoverSpace";
+            this.numInputRebarCoverSpace.Size = new System.Drawing.Size(191, 20);
+            this.numInputRebarCoverSpace.TabIndex = 9;
+            this.numInputRebarCoverSpace.Value = new decimal(new int[] {
+            40,
+            0,
+            0,
+            0});
             // 
             // ParametericDesignControl
             // 
@@ -209,6 +295,9 @@
             this.parametersTableLayoutPanel.ResumeLayout(false);
             this.parametersTableLayoutPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numInputRebarSpacing)).EndInit();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbSpinner)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numInputRebarCoverSpace)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -227,5 +316,9 @@
         private System.Windows.Forms.ComboBox cmbRebarShape;
         private System.Windows.Forms.NumericUpDown numInputRebarSpacing;
         private System.Windows.Forms.Button btnApplyChange;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.PictureBox pbSpinner;
+        private System.Windows.Forms.Label lbRebarCoverSpace;
+        private System.Windows.Forms.NumericUpDown numInputRebarCoverSpace;
     }
 }

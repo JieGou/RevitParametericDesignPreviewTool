@@ -34,6 +34,7 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.DB.Structure;
 using RView = Autodesk.Revit.DB.View;
 using RApplication = Autodesk.Revit.ApplicationServices.Application;
+using System.Runtime.InteropServices;
 
 namespace RevitParametericDesignPreviewTool
 {
@@ -45,6 +46,33 @@ namespace RevitParametericDesignPreviewTool
         private UIApplication rvtUIApp = null;
         private ParametericDesignViewEventHandler dbViewEventHandler = null;
         private ExternalEvent dbViewEvent = null;
+
+        private ParametricDesignModifierEventHandler modifierEventHandler = null;
+        private ExternalEvent modifierEvent = null;
+
+        public ElementId TargetElementId
+        {
+            get { return this.targetElementId; }
+        }
+
+        // DLL imports from user32.dll to set focus to
+        // Revit to force it to forward the external event
+        // Raise to actually call the external event 
+        // Execute.
+
+        /// <summary>
+        /// The GetForegroundWindow function returns a 
+        /// handle to the foreground window.
+        /// </summary>
+        [DllImport("user32.dll")]
+        static extern IntPtr GetForegroundWindow();
+
+        /// <summary>
+        /// Move the window associated with the passed 
+        /// handle to the front.
+        /// </summary>
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
 
         public ElementId CurrentDBViewId
         {
@@ -62,6 +90,9 @@ namespace RevitParametericDesignPreviewTool
 
             this.dbViewEventHandler = new ParametericDesignViewEventHandler(this.rvtPreviewControlHost, targetElementId);
             this.dbViewEvent = ExternalEvent.Create(this.dbViewEventHandler);
+
+            this.modifierEventHandler = new ParametricDesignModifierEventHandler(this);
+            this.modifierEvent = ExternalEvent.Create(this.modifierEventHandler);
         }
 
         private void UpdateRebarTypeList()
@@ -94,6 +125,8 @@ namespace RevitParametericDesignPreviewTool
 
                 foreach (var shape in collector.Cast<RebarShape>())
                 {
+                    //var imgSize = new Size(200, 200);
+                    //shape.GetPreviewImage(imgSize);
                     this.cmbRebarShape.Items.Add(new RebarShapeItem(shape));
                 }
 
@@ -118,7 +151,45 @@ namespace RevitParametericDesignPreviewTool
 
         private void btnApplyChange_Click(object sender, EventArgs e)
         {
+            this.ShowSpinner();
+            this.modifierEventHandler.Options = new ParametricDesignModifierOptions()
+            {
+                Spacing = Decimal.ToDouble(this.numInputRebarSpacing.Value),
+                CoverSpace = Decimal.ToDouble(this.numInputRebarCoverSpace.Value),
+                RebarBarTypeId = ((RebarTypeItem)this.cmbRebarType.SelectedItem).Id,
+                RebarShapeId = ((RebarShapeItem)this.cmbRebarShape.SelectedItem).Id,
+                View3dId = this.CurrentDBViewId
+            };
 
+
+            this.modifierEvent.Raise();
+
+            this.SendWindowToBack();
+        }
+
+        public void SendWindowToBack()
+        {
+            // Set focus to Revit for a moment.
+            // Otherwise, it may take a while before 
+            // Revit forwards the event Raise to the
+            // event handler Execute method.
+            SetForegroundWindow(this.rvtUIApp.MainWindowHandle);
+        }
+
+        public void BringWindowToFront()
+        {
+            //IntPtr hBefore = GetForegroundWindow();
+            SetForegroundWindow(this.Handle);
+        }
+
+        public void ShowSpinner()
+        {
+            this.pbSpinner.Visible = true;
+        }
+
+        public void HideSpinner()
+        {
+            this.pbSpinner.Visible = false;
         }
     }
 

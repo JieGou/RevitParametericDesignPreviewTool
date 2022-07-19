@@ -68,6 +68,7 @@ namespace RevitParametericDesignPreviewTool
 
                 ParametericDesignControl form = new ParametericDesignControl(commandData.Application.Application, element.Id);
                 form.Show(new RevitWindowHndle(commandData.Application.MainWindowHandle));
+                //form.Show();
             }
             catch (Exception e)
             {
@@ -96,7 +97,7 @@ namespace RevitParametericDesignPreviewTool
         {
             public bool AllowElement(Element elem)
             {
-                if (elem.Category.Id.IntegerValue == BuiltInCategory.OST_StructuralColumns.GetHashCode())
+                if (elem.Category != null && elem.Category.Id.IntegerValue == BuiltInCategory.OST_StructuralColumns.GetHashCode())
                     return true;
 
                 return false;

@@ -35,6 +35,7 @@ namespace RevitParametericDesignPreviewTool
     {
         private System.Windows.Forms.Integration.ElementHost rvtPreviewControlHost;
         private ElementId targetElementId;
+        private string viewName = "Parameteric Design View";
 
         public bool DisposingView { get; set; }
         public ElementId ViewId { get; private set; }
@@ -58,7 +59,7 @@ namespace RevitParametericDesignPreviewTool
 
                 if (view == null) throw new InvalidOperationException("Failed to create 3D view for ParametericDesignControl");
 
-                view.Name = "Parameteric Design View";
+                view.Name = this.viewName;
                 var isolatingIds = new List<ElementId>();
                 isolatingIds.Add(this.targetElementId);
 
@@ -85,6 +86,17 @@ namespace RevitParametericDesignPreviewTool
             }
         }
 
+        private void DisposeOldView(Document doc)
+        {
+            using (var collector = new FilteredElementCollector(doc))
+            {
+                collector.OfClass(typeof(View3D));
+                Element viewElem = collector.FirstOrDefault(v => v.Name == this.viewName);
+                if (viewElem != null)
+                    doc.Delete(viewElem.Id);
+            }
+        }
+
         public void Execute(UIApplication app)
         {
             Document doc = app.ActiveUIDocument.Document;
@@ -100,6 +112,7 @@ namespace RevitParametericDesignPreviewTool
                 }
                 else
                 {
+                    this.DisposeOldView(doc);
                     this.CreateView3D(doc);
                 }
 
