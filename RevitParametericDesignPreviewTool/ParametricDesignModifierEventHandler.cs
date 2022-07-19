@@ -42,7 +42,7 @@ namespace RevitParametericDesignPreviewTool
             this.parent = parent;
         }
 
-        private void CreateRebar(Document doc, Element targetElement, RebarBarType rebarType, RebarShape rebarShape)
+        private Rebar CreateRebar(Document doc, Element targetElement, RebarBarType rebarType, RebarShape rebarShape)
         {
             //var location = targetElement.Location as LocationPoint;
 
@@ -61,9 +61,6 @@ namespace RevitParametericDesignPreviewTool
             var spacingFromMm2Ft = this.Options.Spacing / 304.8;
             var length = targetElement.get_Parameter(BuiltInParameter.INSTANCE_LENGTH_PARAM).AsDouble();
 
-            var view3d = doc.GetElement(this.Options.View3dId) as View3D;
-            stirrup.SetSolidInView(view3d, true);
-
             double offestFromMm2Ft = this.Options.CoverSpace / 304.8;
             List<XYZ> profilePointsOffset = geometryData.OffsetPoints(offestFromMm2Ft);
             XYZ originOffset = profilePointsOffset[0];
@@ -71,29 +68,86 @@ namespace RevitParametericDesignPreviewTool
             XYZ xVecOffset = profilePointsOffset[3] - originOffset;
             stirrup.GetShapeDrivenAccessor().ScaleToBox(originOffset, xVecOffset, yVecOffset);
             stirrup.GetShapeDrivenAccessor().SetLayoutAsMaximumSpacing(spacingFromMm2Ft, length, true, true, true);
+
+            return stirrup;
+        }
+
+        private void RemoveOldRebars(Document doc, Element targetElement)
+        {
+            var dependentIds = targetElement.GetDependentElements(null);
+
+            foreach (var dependentId in dependentIds)
+            {
+                var rebarElem = doc.GetElement(dependentId) as Autodesk.Revit.DB.Structure.Rebar;
+                if (rebarElem?.Category.Id.IntegerValue == BuiltInCategory.OST_Rebar.GetHashCode())
+                {
+                    doc.Delete(rebarElem.Id);
+                }
+            }
         }
 
         public void Execute(UIApplication app)
         {
             if (this.Options == null) throw new InvalidDataException("Parameter Design Options are not set.");
 
+            Rebar stirrup = null;
             Document doc = app.ActiveUIDocument.Document;
             using (var trans = new Transaction(doc, "Apply Parameter Design Options"))
             {
-                trans.Start();
+                try
+                {
+                    trans.Start();
 
-                var targetElement = doc.GetElement(this.parent.TargetElementId);
-                var rebarType = doc.GetElement(this.Options.RebarBarTypeId) as RebarBarType;
-                var rebarShape = doc.GetElement(this.Options.RebarShapeId) as RebarShape;
-                this.CreateRebar(doc, targetElement, rebarType, rebarShape);
+                    var targetElement = doc.GetElement(this.parent.TargetElementId);
+                    this.RemoveOldRebars(doc, targetElement);
 
-                trans.Commit();
+                    var rebarType = doc.GetElement(this.Options.RebarBarTypeId) as RebarBarType;
+                    var rebarShape = doc.GetElement(this.Options.RebarShapeId) as RebarShape;
+                    stirrup = this.CreateRebar(doc, targetElement, rebarType, rebarShape);
+
+                    trans.Commit();
+                }
+                catch (Exception ex)
+                {
+                    TaskDialog.Show("Revit", $"Failed to create new stirrups or delete old ones for the column ({this.parent.TargetElementId.IntegerValue})");
+                    trans.RollBack();
+                }
+            }
+
+            if (stirrup != null)
+            {
+                using (var trans = new Transaction(doc, "Apply Graphic Overrides to Rebar"))
+                {
+                    try
+                    {
+                        trans.Start();
+                        var view3d = doc.GetElement(this.Options.View3dId) as View3D;
+                        stirrup.SetSolidInView(view3d, true);
+
+                        using (var patternCollecotr = new FilteredElementCollector(doc))
+                        {
+                            patternCollecotr.OfClass(typeof(FillPatternElement));
+                            var solidFillPatternElem = patternCollecotr.FirstOrDefault(e => e.Name == "<Solid fill>");
+
+                            var graphicOverride = new OverrideGraphicSettings();
+                            graphicOverride.SetSurfaceForegroundPatternId(solidFillPatternElem.Id);
+                            graphicOverride.SetSurfaceForegroundPatternColor(new Color(255, 0, 0));
+
+                            view3d.SetElementOverrides(stirrup.Id, graphicOverride);
+                        }
+
+                        trans.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        TaskDialog.Show("Revit", $"Failed to change graphic overrides for the new created stirrups ({stirrup.Id.IntegerValue})");
+                        trans.RollBack();
+                    }
+                }
             }
 
             this.parent.HideSpinner();
             this.parent.BringWindowToFront();
-
-            //doc.Regenerate();
         }
 
         public string GetName()

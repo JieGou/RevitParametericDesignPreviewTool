@@ -78,8 +78,35 @@ namespace RevitParametericDesignPreviewTool
 
                 view.IsolateElementsTemporary(isolatingIds);
                 view.ConvertTemporaryHideIsolateToPermanent();
-                view.DisplayStyle = DisplayStyle.Wireframe;
+                view.DisplayStyle = DisplayStyle.ShadingWithEdges;
                 view.DetailLevel = ViewDetailLevel.Fine;
+
+                using (var patternCollecotr = new FilteredElementCollector(doc))
+                {
+                    patternCollecotr.OfClass(typeof(FillPatternElement));
+                    var solidFillPatternElem = patternCollecotr.FirstOrDefault(e => e.Name == "<Solid fill>");
+
+                    var graphicOverride = new OverrideGraphicSettings();
+                    graphicOverride.SetSurfaceForegroundPatternId(solidFillPatternElem.Id);
+                    graphicOverride.SetSurfaceForegroundPatternColor(new Color(255, 250, 224));
+                    graphicOverride.SetSurfaceTransparency(80);
+
+                    var rebarGraphicOverride = new OverrideGraphicSettings();
+                    rebarGraphicOverride.SetSurfaceForegroundPatternId(solidFillPatternElem.Id);
+                    rebarGraphicOverride.SetSurfaceForegroundPatternColor(new Color(255, 0, 0));
+
+                    view.SetElementOverrides(this.targetElementId, graphicOverride);
+
+                    foreach (var dependentId in dependentIds)
+                    {
+                        var rebarElem = doc.GetElement(dependentId) as Autodesk.Revit.DB.Structure.Rebar;
+                        if (rebarElem?.Category.Id.IntegerValue == BuiltInCategory.OST_Rebar.GetHashCode())
+                        {
+                            view.SetElementOverrides(rebarElem.Id, rebarGraphicOverride);
+                        }
+                    }
+                }
+
                 this.ViewId = view.Id;
 
                 return view;
@@ -103,20 +130,28 @@ namespace RevitParametericDesignPreviewTool
             var message = this.DisposingView ? "Delete Parameteric Design View" : "Create Parameteric Design View";
             using (var trans = new Transaction(doc, message))
             {
-                trans.Start();
-
-                if (this.DisposingView && this.ViewId != null)
+                try
                 {
-                    doc.Delete(this.ViewId);
-                    this.ViewId = null;
-                }
-                else
-                {
-                    this.DisposeOldView(doc);
-                    this.CreateView3D(doc);
-                }
+                    trans.Start();
 
-                trans.Commit();
+                    if (this.DisposingView && this.ViewId != null)
+                    {
+                        doc.Delete(this.ViewId);
+                        this.ViewId = null;
+                    }
+                    else
+                    {
+                        this.DisposeOldView(doc);
+                        this.CreateView3D(doc);
+                    }
+
+                    trans.Commit();
+                }
+                catch (Exception ex)
+                {
+                    TaskDialog.Show("Revit", "Failed to create or delete Parameteric Design View");
+                    trans.RollBack();
+                }
             }
 
             PreviewControl control = this.rvtPreviewControlHost.Child as PreviewControl;

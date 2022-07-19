@@ -40,8 +40,6 @@ namespace RevitParametericDesignPreviewTool
         {
             var uiDocument = commandData.Application.ActiveUIDocument;
             var document = uiDocument.Document;
-            //TransactionGroup outerGroup = new TransactionGroup(document, "Parameteric Design Window");
-            //outerGroup.Start();
 
             Reference selRef = null;
 
@@ -74,11 +72,6 @@ namespace RevitParametericDesignPreviewTool
             {
                 throw e;
             }
-            //finally
-            //{
-            //    //outerGroup.Commit();
-            //    outerGroup.RollBack();
-            //}
 
             return Result.Succeeded;
         }

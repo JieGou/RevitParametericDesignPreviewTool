@@ -28,29 +28,30 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ParametericDesignControl));
             this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.rvtPreviewControlHost = new System.Windows.Forms.Integration.ElementHost();
             this.leftSideTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.parametersTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.lbRebarSpacing = new System.Windows.Forms.Label();
-            this.lbRebarTyep = new System.Windows.Forms.Label();
-            this.lbRebarShape = new System.Windows.Forms.Label();
-            this.cmbRebarType = new System.Windows.Forms.ComboBox();
-            this.cmbRebarShape = new System.Windows.Forms.ComboBox();
             this.numInputRebarSpacing = new System.Windows.Forms.NumericUpDown();
             this.btnApplyChange = new System.Windows.Forms.Button();
+            this.cmbRebarShape = new System.Windows.Forms.ComboBox();
+            this.lbRebarShape = new System.Windows.Forms.Label();
+            this.lbRebarTyep = new System.Windows.Forms.Label();
+            this.cmbRebarType = new System.Windows.Forms.ComboBox();
+            this.lbRebarCoverSpace = new System.Windows.Forms.Label();
+            this.numInputRebarCoverSpace = new System.Windows.Forms.NumericUpDown();
             this.lbTitle = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.pbSpinner = new System.Windows.Forms.PictureBox();
-            this.lbRebarCoverSpace = new System.Windows.Forms.Label();
-            this.numInputRebarCoverSpace = new System.Windows.Forms.NumericUpDown();
             this.mainTableLayoutPanel.SuspendLayout();
             this.leftSideTableLayoutPanel.SuspendLayout();
             this.parametersTableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numInputRebarSpacing)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numInputRebarCoverSpace)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSpinner)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numInputRebarCoverSpace)).BeginInit();
             this.SuspendLayout();
             // 
             // mainTableLayoutPanel
@@ -134,45 +135,6 @@
             this.lbRebarSpacing.Text = "Spacing (mm)";
             this.lbRebarSpacing.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // lbRebarTyep
-            // 
-            this.lbRebarTyep.AutoSize = true;
-            this.lbRebarTyep.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbRebarTyep.Location = new System.Drawing.Point(3, 52);
-            this.lbRebarTyep.Name = "lbRebarTyep";
-            this.lbRebarTyep.Size = new System.Drawing.Size(78, 26);
-            this.lbRebarTyep.TabIndex = 1;
-            this.lbRebarTyep.Text = "Rebar Type";
-            this.lbRebarTyep.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // lbRebarShape
-            // 
-            this.lbRebarShape.AutoSize = true;
-            this.lbRebarShape.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbRebarShape.Location = new System.Drawing.Point(3, 78);
-            this.lbRebarShape.Name = "lbRebarShape";
-            this.lbRebarShape.Size = new System.Drawing.Size(78, 107);
-            this.lbRebarShape.TabIndex = 2;
-            this.lbRebarShape.Text = "RebarShape";
-            // 
-            // cmbRebarType
-            // 
-            this.cmbRebarType.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cmbRebarType.FormattingEnabled = true;
-            this.cmbRebarType.Location = new System.Drawing.Point(87, 55);
-            this.cmbRebarType.Name = "cmbRebarType";
-            this.cmbRebarType.Size = new System.Drawing.Size(191, 21);
-            this.cmbRebarType.TabIndex = 4;
-            // 
-            // cmbRebarShape
-            // 
-            this.cmbRebarShape.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cmbRebarShape.FormattingEnabled = true;
-            this.cmbRebarShape.Location = new System.Drawing.Point(87, 81);
-            this.cmbRebarShape.Name = "cmbRebarShape";
-            this.cmbRebarShape.Size = new System.Drawing.Size(191, 21);
-            this.cmbRebarShape.TabIndex = 5;
-            // 
             // numInputRebarSpacing
             // 
             this.numInputRebarSpacing.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -205,6 +167,74 @@
             this.btnApplyChange.Text = "Apply";
             this.btnApplyChange.UseVisualStyleBackColor = true;
             this.btnApplyChange.Click += new System.EventHandler(this.btnApplyChange_Click);
+            // 
+            // cmbRebarShape
+            // 
+            this.cmbRebarShape.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cmbRebarShape.FormattingEnabled = true;
+            this.cmbRebarShape.Location = new System.Drawing.Point(87, 81);
+            this.cmbRebarShape.Name = "cmbRebarShape";
+            this.cmbRebarShape.Size = new System.Drawing.Size(191, 21);
+            this.cmbRebarShape.TabIndex = 5;
+            // 
+            // lbRebarShape
+            // 
+            this.lbRebarShape.AutoSize = true;
+            this.lbRebarShape.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbRebarShape.Location = new System.Drawing.Point(3, 78);
+            this.lbRebarShape.Name = "lbRebarShape";
+            this.lbRebarShape.Size = new System.Drawing.Size(78, 107);
+            this.lbRebarShape.TabIndex = 2;
+            this.lbRebarShape.Text = "RebarShape";
+            // 
+            // lbRebarTyep
+            // 
+            this.lbRebarTyep.AutoSize = true;
+            this.lbRebarTyep.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbRebarTyep.Location = new System.Drawing.Point(3, 52);
+            this.lbRebarTyep.Name = "lbRebarTyep";
+            this.lbRebarTyep.Size = new System.Drawing.Size(78, 26);
+            this.lbRebarTyep.TabIndex = 1;
+            this.lbRebarTyep.Text = "Rebar Type";
+            this.lbRebarTyep.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // cmbRebarType
+            // 
+            this.cmbRebarType.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cmbRebarType.FormattingEnabled = true;
+            this.cmbRebarType.Location = new System.Drawing.Point(87, 55);
+            this.cmbRebarType.Name = "cmbRebarType";
+            this.cmbRebarType.Size = new System.Drawing.Size(191, 21);
+            this.cmbRebarType.TabIndex = 4;
+            // 
+            // lbRebarCoverSpace
+            // 
+            this.lbRebarCoverSpace.AutoSize = true;
+            this.lbRebarCoverSpace.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbRebarCoverSpace.Location = new System.Drawing.Point(3, 26);
+            this.lbRebarCoverSpace.Name = "lbRebarCoverSpace";
+            this.lbRebarCoverSpace.Size = new System.Drawing.Size(78, 26);
+            this.lbRebarCoverSpace.TabIndex = 8;
+            this.lbRebarCoverSpace.Text = "Cover (mm)";
+            this.lbRebarCoverSpace.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // numInputRebarCoverSpace
+            // 
+            this.numInputRebarCoverSpace.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numInputRebarCoverSpace.Location = new System.Drawing.Point(87, 29);
+            this.numInputRebarCoverSpace.Maximum = new decimal(new int[] {
+            150,
+            0,
+            0,
+            0});
+            this.numInputRebarCoverSpace.Name = "numInputRebarCoverSpace";
+            this.numInputRebarCoverSpace.Size = new System.Drawing.Size(191, 20);
+            this.numInputRebarCoverSpace.TabIndex = 9;
+            this.numInputRebarCoverSpace.Value = new decimal(new int[] {
+            40,
+            0,
+            0,
+            0});
             // 
             // lbTitle
             // 
@@ -250,41 +280,13 @@
             this.pbSpinner.TabStop = false;
             this.pbSpinner.Visible = false;
             // 
-            // lbRebarCoverSpace
-            // 
-            this.lbRebarCoverSpace.AutoSize = true;
-            this.lbRebarCoverSpace.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbRebarCoverSpace.Location = new System.Drawing.Point(3, 26);
-            this.lbRebarCoverSpace.Name = "lbRebarCoverSpace";
-            this.lbRebarCoverSpace.Size = new System.Drawing.Size(78, 26);
-            this.lbRebarCoverSpace.TabIndex = 8;
-            this.lbRebarCoverSpace.Text = "Cover (mm)";
-            this.lbRebarCoverSpace.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // numInputRebarCoverSpace
-            // 
-            this.numInputRebarCoverSpace.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numInputRebarCoverSpace.Location = new System.Drawing.Point(87, 29);
-            this.numInputRebarCoverSpace.Maximum = new decimal(new int[] {
-            150,
-            0,
-            0,
-            0});
-            this.numInputRebarCoverSpace.Name = "numInputRebarCoverSpace";
-            this.numInputRebarCoverSpace.Size = new System.Drawing.Size(191, 20);
-            this.numInputRebarCoverSpace.TabIndex = 9;
-            this.numInputRebarCoverSpace.Value = new decimal(new int[] {
-            40,
-            0,
-            0,
-            0});
-            // 
             // ParametericDesignControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(734, 611);
             this.Controls.Add(this.mainTableLayoutPanel);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ParametericDesignControl";
             this.Text = "Parameteric Design Window";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ParametericDesignControl_FormClosing);
@@ -295,9 +297,9 @@
             this.parametersTableLayoutPanel.ResumeLayout(false);
             this.parametersTableLayoutPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numInputRebarSpacing)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numInputRebarCoverSpace)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pbSpinner)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numInputRebarCoverSpace)).EndInit();
             this.ResumeLayout(false);
 
         }
