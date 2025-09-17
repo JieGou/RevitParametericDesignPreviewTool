@@ -28,19 +28,21 @@ using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using System.Windows;
 
 namespace RevitParametericDesignPreviewTool
 {
     public class ParametericDesignViewEventHandler : IExternalEventHandler
     {
-        private System.Windows.Forms.Integration.ElementHost rvtPreviewControlHost;
+        private System.Windows.Controls.Grid rvtPreviewControlHost;
         private ElementId targetElementId;
         private string viewName = "Parameteric Design View";
 
         public bool DisposingView { get; set; }
         public ElementId ViewId { get; private set; }
+        public PreviewControl previewCtrl { get; private set; }
 
-        public ParametericDesignViewEventHandler(System.Windows.Forms.Integration.ElementHost rvtPreviewControlHost, ElementId targetElementId)
+        public ParametericDesignViewEventHandler(System.Windows.Controls.Grid rvtPreviewControlHost, ElementId targetElementId)
         {
             this.rvtPreviewControlHost = rvtPreviewControlHost;
             this.targetElementId = targetElementId;
@@ -155,14 +157,23 @@ namespace RevitParametericDesignPreviewTool
                 }
             }
 
-            if (this.rvtPreviewControlHost.Child is PreviewControl control)
-                control.Dispose();
+            if (this.rvtPreviewControlHost.Children != null && this.rvtPreviewControlHost.Children.Count > 0)
+            {
+                this.rvtPreviewControlHost.Children.Clear();
+                previewCtrl.Dispose();
+            }
 
             if (!this.DisposingView)
             {
-                var previewCtrl = new PreviewControl(doc, this.ViewId);
-                this.rvtPreviewControlHost.Child = previewCtrl;
+                previewCtrl = new PreviewControl(doc, this.ViewId);
+                previewCtrl.Loaded += PreviewControlLoad;
+                this.rvtPreviewControlHost.Children.Add(previewCtrl);
             }
+        }
+
+        private void PreviewControlLoad(object sender, RoutedEventArgs e)
+        {
+            this.previewCtrl?.UIView.ZoomToFit();
         }
 
         public string GetName()

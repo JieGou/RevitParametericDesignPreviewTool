@@ -1,4 +1,4 @@
-ï»¿// (C) Copyright 2022 by Autodesk, Inc. 
+// (C) Copyright 2022 by Autodesk, Inc. 
 //
 // Permission to use, copy, modify, and distribute this software
 // in object code form for any purpose and without fee is hereby
@@ -22,23 +22,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Interop;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB.Structure;
 using RView = Autodesk.Revit.DB.View;
 using RApplication = Autodesk.Revit.ApplicationServices.Application;
-using System.Runtime.InteropServices;
 
 namespace RevitParametericDesignPreviewTool
 {
-    public partial class ParametericDesignControl : System.Windows.Forms.Form
+    public partial class ParametericDesignControl : Window
     {
         private ElementId targetElementId = null;
         private Document rvtDoc = null;
@@ -93,23 +90,25 @@ namespace RevitParametericDesignPreviewTool
 
             this.modifierEventHandler = new ParametricDesignModifierEventHandler(this);
             this.modifierEvent = ExternalEvent.Create(this.modifierEventHandler);
+
+            this.Loaded += ParametericDesignWindow_Shown;
+            this.Closing += ParametericDesignControl_FormClosing;
+            this.btnApplyChange.Click += btnApplyChange_Click;
         }
 
         private void UpdateRebarTypeList()
         {
             using (var collector = new FilteredElementCollector(this.rvtDoc))
             {
-                //collector.WhereElementIsNotElementType();
                 collector.OfClass(typeof(RebarBarType));
 
                 this.cmbRebarType.Items.Clear();
-
                 foreach (var type in collector.Cast<RebarBarType>())
                 {
                     this.cmbRebarType.Items.Add(new RebarTypeItem(type));
                 }
 
-                // ä¼˜å…ˆæŒ‰å½“å‰æŸ±ä¸Šå·²å­˜åœ¨é’¢ç­‹çš„ç±»å‹é¢„é€‰ï¼›æ— åˆ™å›é€€åˆ°ç¬¬ä¸€é¡¹
+                // ÓÅÏÈ°´µ±Ç°ÖùÉÏÒÑ´æÔÚ¸Ö½îµÄÀàĞÍÔ¤Ñ¡£»ÎŞÔò»ØÍËµ½µÚÒ»Ïî
                 int index = -1;
                 var preferredTypeId = this.GetPreferredRebarTypeId();
                 if (preferredTypeId != null)
@@ -122,7 +121,7 @@ namespace RevitParametericDesignPreviewTool
 
                 if (index >= 0)
                     this.cmbRebarType.SelectedIndex = index;
-                else if (collector.Count() > 0)
+                else if (collector.GetElementCount() > 0)
                     this.cmbRebarType.SelectedIndex = 0;
             }
         }
@@ -140,7 +139,7 @@ namespace RevitParametericDesignPreviewTool
                     this.cmbRebarShape.Items.Add(new RebarShapeItem(shape));
                 }
 
-                // ä¼˜å…ˆæŒ‰å½“å‰æŸ±ä¸Šå·²å­˜åœ¨é’¢ç­‹çš„å½¢çŠ¶é¢„é€‰ï¼›æ— åˆ™å›é€€åˆ°ç¬¬ä¸€é¡¹
+                // ÓÅÏÈ°´µ±Ç°ÖùÉÏÒÑ´æÔÚ¸Ö½îµÄĞÎ×´Ô¤Ñ¡£»ÎŞÔò»ØÍËµ½µÚÒ»Ïî
                 int index = -1;
                 var preferredShapeId = this.GetPreferredRebarShapeId();
                 if (preferredShapeId != null && preferredShapeId != ElementId.InvalidElementId)
@@ -153,44 +152,47 @@ namespace RevitParametericDesignPreviewTool
 
                 if (index >= 0)
                     this.cmbRebarShape.SelectedIndex = index;
-                else if (collector.Count() > 0)
+                else if (collector.GetElementCount() > 0)
                     this.cmbRebarShape.SelectedIndex = 0;
             }
         }
 
-        private void ParametericDesignWindow_Shown(object sender, EventArgs e)
+        private void ParametericDesignWindow_Shown(object sender, RoutedEventArgs e)
         {
             this.UpdateRebarShapeList();
             this.UpdateRebarTypeList();
 
-            // æ–°å¢ï¼šä¼˜å…ˆé€šè¿‡å·²å­˜åœ¨é’¢ç­‹åæ¨ä¿æŠ¤å±‚ï¼›å¤±è´¥åˆ™å›é€€åˆ°å®¿ä¸»ä¿æŠ¤å±‚è®¾ç½®
+            // ĞÂÔö£ºÓÅÏÈÍ¨¹ıÒÑ´æÔÚ¸Ö½î·´ÍÆ±£»¤²ã£»Ê§°ÜÔò»ØÍËµ½ËŞÖ÷±£»¤²ãÉèÖÃ
             this.TryInitCoverByReverseFromExistingRebar();
 
             this.dbViewEventHandler.DisposingView = false;
             this.dbViewEvent.Raise();
         }
 
-        private void ParametericDesignControl_FormClosing(object sender, FormClosingEventArgs e)
+        private void ParametericDesignControl_FormClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             this.dbViewEventHandler.DisposingView = true;
             this.dbViewEvent.Raise();
         }
 
-        private void btnApplyChange_Click(object sender, EventArgs e)
+        private void btnApplyChange_Click(object sender, RoutedEventArgs e)
         {
             this.ShowSpinner();
+
+            // ´Ó IntegerUpDown ¶ÁÈ¡Öµ£¬¿ÕÖµ¸øÄ¬ÈÏÖµ
+            double spacing = (this.numInputRebarSpacing.Value.HasValue ? this.numInputRebarSpacing.Value.Value : 100);
+            double cover = (this.numInputRebarCoverSpace.Value.HasValue ? this.numInputRebarCoverSpace.Value.Value : 40);
+
             this.modifierEventHandler.Options = new ParametricDesignModifierOptions()
             {
-                Spacing = Decimal.ToDouble(this.numInputRebarSpacing.Value),
-                CoverSpace = Decimal.ToDouble(this.numInputRebarCoverSpace.Value),
+                Spacing = spacing,
+                CoverSpace = cover,
                 RebarBarTypeId = ((RebarTypeItem)this.cmbRebarType.SelectedItem).Id,
                 RebarShapeId = ((RebarShapeItem)this.cmbRebarShape.SelectedItem).Id,
                 View3dId = this.CurrentDBViewId
             };
 
-
             this.modifierEvent.Raise();
-
             this.SendWindowToBack();
         }
 
@@ -205,25 +207,23 @@ namespace RevitParametericDesignPreviewTool
 
         public void BringWindowToFront()
         {
-            //IntPtr hBefore = GetForegroundWindow();
-            SetForegroundWindow(this.Handle);
+            var hwnd = new WindowInteropHelper(this).Handle;
+            if (hwnd != IntPtr.Zero)
+                SetForegroundWindow(hwnd);
         }
 
         public void ShowSpinner()
         {
-            this.pbSpinner.Visible = true;
+            this.pbSpinner.Visibility = System.Windows.Visibility.Visible;
         }
 
         public void HideSpinner()
         {
-            this.pbSpinner.Visible = false;
+            this.pbSpinner.Visibility = System.Windows.Visibility.Collapsed;
         }
 
-        // ========= æ–°å¢ï¼šä»å®¿ä¸»æŸ±æ”¶é›†é’¢ç­‹å¹¶è®¡ç®—é¦–é€‰ç±»å‹ä¸å½¢çŠ¶ =========
+        // ========= ´ÓËŞÖ÷ÖùÊÕ¼¯¸Ö½î²¢¼ÆËãÊ×Ñ¡ÀàĞÍÓëĞÎ×´ =========
 
-        /// <summary>
-        /// è·å–å®¿ä¸»æŸ±çš„æ‰€æœ‰ä¾èµ–é’¢ç­‹
-        /// </summary>
         private IEnumerable<Rebar> GetHostRebars()
         {
             if (this.rvtDoc == null || this.targetElementId == null) return Enumerable.Empty<Rebar>();
@@ -240,7 +240,7 @@ namespace RevitParametericDesignPreviewTool
         }
 
         /// <summary>
-        /// è®¡ç®—ä¼˜å…ˆé€‰æ‹©çš„é’¢ç­‹ç±»å‹ï¼ˆå¤šæ•°ä¼˜å…ˆï¼‰
+        /// ¼ÆËãÓÅÏÈÑ¡ÔñµÄ¸Ö½îÀàĞÍ£¨¶àÊıÓÅÏÈ£©
         /// </summary>
         private ElementId GetPreferredRebarTypeId()
         {
@@ -259,7 +259,7 @@ namespace RevitParametericDesignPreviewTool
         }
 
         /// <summary>
-        /// è®¡ç®—ä¼˜å…ˆé€‰æ‹©çš„é’¢ç­‹å½¢çŠ¶ï¼ˆå¤šæ•°ä¼˜å…ˆï¼›å¿½ç•¥å–ä¸åˆ°å½¢çŠ¶çš„è‡ªç”±å½¢é’¢ç­‹ï¼‰
+        /// ¼ÆËãÓÅÏÈÑ¡ÔñµÄ¸Ö½îĞÎ×´£¨¶àÊıÓÅÏÈ£»ºöÂÔÈ¡²»µ½ĞÎ×´µÄ×ÔÓÉĞÎ¸Ö½î£©
         /// </summary>
         private ElementId GetPreferredRebarShapeId()
         {
@@ -274,7 +274,7 @@ namespace RevitParametericDesignPreviewTool
                 }
                 catch
                 {
-                    // è‡ªç”±å½¢é’¢ç­‹æˆ–å¤šå½¢åŒ¹é…æ—¶ GetShapeId å¯èƒ½æŠ›å¼‚å¸¸ï¼Œå¿½ç•¥
+                    // ×ÔÓÉĞÎ¸Ö½î»ò¶àĞÎÆ¥ÅäÊ± GetShapeId ¿ÉÄÜÅ×Òì³££¬ºöÂÔ
                 }
             }
 
@@ -287,12 +287,12 @@ namespace RevitParametericDesignPreviewTool
                 .FirstOrDefault();
         }
 
-        // ========= ä¿æŠ¤å±‚åæ¨ä¸åˆå§‹åŒ– =========
+        // ========= ±£»¤²ã·´ÍÆÓë³õÊ¼»¯ =========
 
         /// <summary>
-        /// é€šè¿‡å·²å­˜åœ¨é’¢ç­‹åæ¨ä¿æŠ¤å±‚ï¼ˆmmï¼‰ã€‚ç®—æ³•ä¾æ® ScaleToBoxï¼šçŸ©å½¢å°ºå¯¸åŒ…å«é’¢ç­‹ç›´å¾„ã€‚
+        /// Í¨¹ıÒÑ´æÔÚ¸Ö½î·´ÍÆ±£»¤²ã£¨mm£©¡£Ëã·¨ÒÀ¾İ ScaleToBox£º¾ØĞÎ³ß´ç°üº¬¸Ö½îÖ±¾¶¡£
         /// Cover = (HostSize - (CenterlineSize + BarDiameter)) / 2
-        /// ç»“æœå– X/Y ä¸¤å‘çš„è¾ƒå°å€¼ã€‚
+        /// ½á¹ûÈ¡ X/Y Á½ÏòµÄ½ÏĞ¡Öµ¡£
         /// </summary>
         private double? ReverseComputeCoverFromExistingRebarMm()
         {
@@ -301,7 +301,7 @@ namespace RevitParametericDesignPreviewTool
             var host = this.rvtDoc.GetElement(this.targetElementId) as FamilyInstance;
             if (host == null) return null;
 
-            // ä¸»ä½“æˆªé¢åŸºå‡†ï¼ˆä¸åˆ›å»ºæ—¶ä¸€è‡´ï¼‰
+            // Ö÷Ìå½ØÃæ»ù×¼£¨Óë´´½¨Ê±Ò»ÖÂ£©
             var geo = new GeometrySupport(host);
             var origin = geo.ProfilePoints[0];
             var xVec = geo.ProfilePoints[3] - origin;
@@ -311,17 +311,17 @@ namespace RevitParametericDesignPreviewTool
             var hostX = xVec.GetLength();
             var hostY = yVec.GetLength();
 
-            // é€‰ä¸€æ ¹å½¢é©±é’¢ç­‹
+            // Ñ¡Ò»¸ùĞÎÇı¸Ö½î
             var rebar = this.GetHostRebars().FirstOrDefault(r => r.IsRebarShapeDriven());
             if (rebar == null) return null;
 
-            // é’¢ç­‹ç›´å¾„
+            // ¸Ö½îÖ±¾¶
             double barDia = 0.0;
             var barType = this.rvtDoc.GetElement(rebar.GetTypeId()) as RebarBarType;
             if (barType != null)
             {
                 barDia = barType.BarModelDiameter;
-                //é€šè¿‡å‚æ•°æ¥è·å–ç›´å¾„ 
+                //Í¨¹ı²ÎÊıÀ´»ñÈ¡Ö±¾¶ 
                 var pDia = barType.get_Parameter(BuiltInParameter.REBAR_BAR_DIAMETER).AsDouble();
             }
 
@@ -332,7 +332,7 @@ namespace RevitParametericDesignPreviewTool
                 multiplanarOption: MultiplanarOption.IncludeOnlyPlanarCurves,
                 barPositionIndex: 0);
 
-            // å¦‚æœåŒ…å«å¤šä¸ªå½¢çŠ¶ï¼Œå¦‚ç›´çº¿å’Œåœ†å¼§ï¼Œä¼˜å…ˆå–ç±»å‹å¤šçš„ï¼›æ•°é‡ç›¸åŒåˆ™æŒ‰æ€»é•¿åº¦ä¼˜å…ˆ
+            // Èç¹û°üº¬¶à¸öĞÎ×´£¬ÈçÖ±ÏßºÍÔ²»¡£¬ÓÅÏÈÈ¡ÀàĞÍ¶àµÄ£»ÊıÁ¿ÏàÍ¬Ôò°´×Ü³¤¶ÈÓÅÏÈ
             var majorityKind = allCurves
                 .GroupBy(c => ClassifyCurveKind(c))
                 .OrderByDescending(g => g.Count())
@@ -341,14 +341,14 @@ namespace RevitParametericDesignPreviewTool
                 .FirstOrDefault();
 
             var curves = allCurves.Where(c => ClassifyCurveKind(c) == majorityKind).ToList();
-            if (curves.Count == 0) curves = allCurves.ToList(); // å…œåº•
+            if (curves.Count == 0) curves = allCurves.ToList(); // ¶µµ×
 
             double minX = double.PositiveInfinity, maxX = double.NegativeInfinity;
             double minY = double.PositiveInfinity, maxY = double.NegativeInfinity;
 
             foreach (var c in curves)
             {
-                // é‡‡æ ·èµ·ç‚¹/ä¸­ç‚¹/ç»ˆç‚¹ï¼Œè¶³ä»¥è¦†ç›–ç›´çº¿ä¸åœ†å¼§æå€¼
+                // ²ÉÑùÆğµã/ÖĞµã/ÖÕµã£¬×ãÒÔ¸²¸ÇÖ±ÏßÓëÔ²»¡¼«Öµ
                 var p0 = c.GetEndPoint(0);
                 var p1 = c.Evaluate(0.5, true);
                 var p2 = c.GetEndPoint(1);
@@ -371,22 +371,22 @@ namespace RevitParametericDesignPreviewTool
             var centerlineX = Math.Max(0.0, maxX - minX);
             var centerlineY = Math.Max(0.0, maxY - minY);
 
-            // å¤–åŒ…å°ºå¯¸ = ä¸­å¿ƒçº¿å°ºå¯¸ + ç›´å¾„ï¼ˆä¸¤ä¾§å„åŠå¾„ï¼‰
+            // Íâ°ü³ß´ç = ÖĞĞÄÏß³ß´ç + Ö±¾¶£¨Á½²à¸÷°ë¾¶£©
             var outerX = centerlineX + barDia;
             var outerY = centerlineY + barDia;
 
-            // åæ¨ Coverï¼ˆè‹±å°ºï¼‰
+            // ·´ÍÆ Cover£¨Ó¢³ß£©
             var coverX = (hostX - outerX) / 2.0;
             var coverY = (hostY - outerY) / 2.0;
 
-            // å–è¾ƒå¤§å€¼ï¼Œè´Ÿæ•°æŒ‰ 0 è®¡
+            // È¡½Ï´óÖµ£¬¸ºÊı°´ 0 ¼Æ
             var coverFt = Math.Max(0.0, Math.Max(coverX, coverY));
 
-            // è½¬æˆ mm
+            // ×ª³É mm
             return coverFt * 304.8;
         }
 
-        // æ›²çº¿ç±»å‹å½’ç±»ï¼šç›´çº¿ã€åœ†å¼§ã€å…¶å®ƒ
+        // ÇúÏßÀàĞÍ¹éÀà£ºÖ±Ïß¡¢Ô²»¡¡¢ÆäËü
         private CurveKind ClassifyCurveKind(Curve c)
         {
             if (c is Line) return CurveKind.Line;
@@ -402,7 +402,7 @@ namespace RevitParametericDesignPreviewTool
         }
 
         /// <summary>
-        /// è¯»å–å®¿ä¸»çš„ä¿æŠ¤å±‚ï¼ˆmmï¼‰ï¼Œä¼˜å…ˆ Other ä½œä¸ºå›é€€ç­–ç•¥
+        /// ¶ÁÈ¡ËŞÖ÷µÄ±£»¤²ã£¨mm£©£¬ÓÅÏÈ Other ×÷Îª»ØÍË²ßÂÔ
         /// </summary>
         private double? GetPreferredRebarCoverMm()
         {
@@ -439,30 +439,27 @@ namespace RevitParametericDesignPreviewTool
         }
 
         /// <summary>
-        /// ç”¨åæ¨ç»“æœåˆå§‹åŒ–ä¿æŠ¤å±‚ï¼›å¤±è´¥æ—¶å›é€€åˆ°å®¿ä¸»ä¿æŠ¤å±‚
+        /// ÓÃ·´ÍÆ½á¹û³õÊ¼»¯±£»¤²ã£»Ê§°ÜÊ±»ØÍËµ½ËŞÖ÷±£»¤²ã
         /// </summary>
         private void TryInitCoverByReverseFromExistingRebar()
         {
             var mm = this.ReverseComputeCoverFromExistingRebarMm() ?? this.GetPreferredRebarCoverMm();
             if (!mm.HasValue) return;
 
-            var value = (decimal)Math.Round(mm.Value, 1);
-            if (value < this.numInputRebarCoverSpace.Minimum) value = this.numInputRebarCoverSpace.Minimum;
-            if (value > this.numInputRebarCoverSpace.Maximum) value = this.numInputRebarCoverSpace.Maximum;
-            this.numInputRebarCoverSpace.Value = value;
+            // IntegerUpDown£º°´ÕûÊıºÁÃ×ÏÔÊ¾²¢ÏŞÖÆÔÚ 0~150
+            int v = (int)Math.Round(mm.Value, MidpointRounding.AwayFromZero);
+            if (v < 0) v = 0;
+            if (v > 150) v = 150;
+            this.numInputRebarCoverSpace.Value = v;
         }
     }
 
     public class RebarTypeItem
     {
-        public String Name { get; private set; }
+        public string Name { get; private set; }
         public ElementId Id { get; private set; }
-        public String UniqueId { get; private set; }
-
-        public override String ToString()
-        {
-            return this.Name;
-        }
+        public string UniqueId { get; private set; }
+        public override string ToString() => this.Name;
 
         public RebarTypeItem(RebarBarType rebarType)
         {
@@ -473,18 +470,14 @@ namespace RevitParametericDesignPreviewTool
     }
 
     /// <summary>
-    /// é’¢ç­‹å½¢çŠ¶
+    /// ¸Ö½îĞÎ×´
     /// </summary>
     public class RebarShapeItem
     {
-        public String Name { get; private set; }
+        public string Name { get; private set; }
         public ElementId Id { get; private set; }
-        public String UniqueId { get; private set; }
-
-        public override String ToString()
-        {
-            return this.Name;
-        }
+        public string UniqueId { get; private set; }
+        public override string ToString() => this.Name;
 
         public RebarShapeItem(RebarShape rebarShape)
         {

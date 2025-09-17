@@ -65,8 +65,8 @@ namespace RevitParametericDesignPreviewTool
                 }
 
                 var form = new ParametericDesignControl(commandData.Application.Application, element.Id);
-                form.Show(new RevitWindowHndle(commandData.Application.MainWindowHandle));
-                //form.Show();
+                SetOwner(form, commandData.Application.MainWindowHandle);
+                form.Show();
             }
             catch (Exception e)
             {
@@ -74,6 +74,11 @@ namespace RevitParametericDesignPreviewTool
             }
 
             return Result.Succeeded;
+        }
+        private void SetOwner(System.Windows.Window window, IntPtr ownerHandle)
+        {
+            var helper = new System.Windows.Interop.WindowInteropHelper(window);
+            helper.Owner = ownerHandle;
         }
 
         public class RevitWindowHndle : System.Windows.Forms.IWin32Window
