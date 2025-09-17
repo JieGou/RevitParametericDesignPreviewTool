@@ -51,17 +51,16 @@ namespace RevitParametericDesignPreviewTool
             using (var collector = new FilteredElementCollector(doc))
             {
                 collector.OfClass(typeof(ViewFamilyType));
-                var viewFamilyType = collector.Cast<ViewFamilyType>().FirstOrDefault(viewType => viewType.ViewFamily == ViewFamily.ThreeDimensional);
-
-                if (viewFamilyType == null) throw new InvalidDataException("Not ViewFamilyType for 3D found");
-
-                var view = View3D.CreateIsometric(doc, viewFamilyType.Id);
-
-                if (view == null) throw new InvalidOperationException("Failed to create 3D view for ParametericDesignControl");
-
+                var viewFamilyType = collector.Cast<ViewFamilyType>().FirstOrDefault(viewType => viewType.ViewFamily == ViewFamily.ThreeDimensional) ?? throw new InvalidDataException("Not ViewFamilyType for 3D found");
+                //可采用复制已有3D视图的方式创建。 ViewCube SteeringWheels的显示可以预先设置关闭
+                //“视图”选项卡 “窗口”面板 “用户界面”下拉列表 “ViewCube”
+                //或尝试采用调用命令的方式切换 关闭----ID_NAVWHEEL_CLOSE----SteeringWheels---- ID_SHOW_VIEWCUBE
+                var view = View3D.CreateIsometric(doc, viewFamilyType.Id) ?? throw new InvalidOperationException("Failed to create 3D view for ParametericDesignControl");
                 view.Name = this.viewName;
-                var isolatingIds = new List<ElementId>();
-                isolatingIds.Add(this.targetElementId);
+                var isolatingIds = new List<ElementId>()
+                {
+                    this.targetElementId
+                };
 
                 var targetElement = doc.GetElement(this.targetElementId);
                 var dependentIds = targetElement.GetDependentElements(null);
@@ -84,25 +83,27 @@ namespace RevitParametericDesignPreviewTool
                 using (var patternCollecotr = new FilteredElementCollector(doc))
                 {
                     patternCollecotr.OfClass(typeof(FillPatternElement));
-                    var solidFillPatternElem = patternCollecotr.FirstOrDefault(e => e.Name == "<Solid fill>");
-
-                    var graphicOverride = new OverrideGraphicSettings();
-                    graphicOverride.SetSurfaceForegroundPatternId(solidFillPatternElem.Id);
-                    graphicOverride.SetSurfaceForegroundPatternColor(new Color(255, 250, 224));
-                    graphicOverride.SetSurfaceTransparency(80);
-
-                    var rebarGraphicOverride = new OverrideGraphicSettings();
-                    rebarGraphicOverride.SetSurfaceForegroundPatternId(solidFillPatternElem.Id);
-                    rebarGraphicOverride.SetSurfaceForegroundPatternColor(new Color(255, 0, 0));
-
-                    view.SetElementOverrides(this.targetElementId, graphicOverride);
-
-                    foreach (var dependentId in dependentIds)
+                    var solidFillPatternElem = patternCollecotr.FirstOrDefault(e => e.Name == GlobalConst.SolidFillPatternName);
+                    if (solidFillPatternElem != null)
                     {
-                        var rebarElem = doc.GetElement(dependentId) as Autodesk.Revit.DB.Structure.Rebar;
-                        if (rebarElem?.Category.Id.IntegerValue == BuiltInCategory.OST_Rebar.GetHashCode())
+                        var graphicOverride = new OverrideGraphicSettings();
+                        graphicOverride.SetSurfaceForegroundPatternId(solidFillPatternElem.Id);
+                        graphicOverride.SetSurfaceForegroundPatternColor(new Color(255, 250, 224));
+                        graphicOverride.SetSurfaceTransparency(80);
+
+                        var rebarGraphicOverride = new OverrideGraphicSettings();
+                        rebarGraphicOverride.SetSurfaceForegroundPatternId(solidFillPatternElem.Id);
+                        rebarGraphicOverride.SetSurfaceForegroundPatternColor(new Color(255, 0, 0));
+
+                        view.SetElementOverrides(this.targetElementId, graphicOverride);
+
+                        foreach (var dependentId in dependentIds)
                         {
-                            view.SetElementOverrides(rebarElem.Id, rebarGraphicOverride);
+                            var rebarElem = doc.GetElement(dependentId) as Autodesk.Revit.DB.Structure.Rebar;
+                            if (rebarElem?.Category.Id.IntegerValue == BuiltInCategory.OST_Rebar.GetHashCode())
+                            {
+                                view.SetElementOverrides(rebarElem.Id, rebarGraphicOverride);
+                            }
                         }
                     }
                 }
@@ -154,8 +155,7 @@ namespace RevitParametericDesignPreviewTool
                 }
             }
 
-            PreviewControl control = this.rvtPreviewControlHost.Child as PreviewControl;
-            if (control != null)
+            if (this.rvtPreviewControlHost.Child is PreviewControl control)
                 control.Dispose();
 
             if (!this.DisposingView)

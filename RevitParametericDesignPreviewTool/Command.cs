@@ -64,7 +64,7 @@ namespace RevitParametericDesignPreviewTool
                     return Result.Cancelled;
                 }
 
-                ParametericDesignControl form = new ParametericDesignControl(commandData.Application.Application, element.Id);
+                var form = new ParametericDesignControl(commandData.Application.Application, element.Id);
                 form.Show(new RevitWindowHndle(commandData.Application.MainWindowHandle));
                 //form.Show();
             }

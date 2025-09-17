@@ -54,10 +54,7 @@ namespace RevitParametericDesignPreviewTool
             XYZ yVec = profilePoints[1] - origin;
             XYZ xVec = profilePoints[3] - origin;
 
-            var stirrup = Rebar.CreateFromRebarShape(doc, rebarShape, rebarType, targetElement, origin, xVec, yVec);
-
-            if (stirrup == null) throw new InvalidOperationException("Failed to create stirrup");
-
+            var stirrup = Rebar.CreateFromRebarShape(doc, rebarShape, rebarType, targetElement, origin, xVec, yVec) ?? throw new InvalidOperationException("Failed to create stirrup");
             var spacingFromMm2Ft = this.Options.Spacing / 304.8;
             var length = targetElement.get_Parameter(BuiltInParameter.INSTANCE_LENGTH_PARAM).AsDouble();
 
@@ -127,13 +124,15 @@ namespace RevitParametericDesignPreviewTool
                         using (var patternCollecotr = new FilteredElementCollector(doc))
                         {
                             patternCollecotr.OfClass(typeof(FillPatternElement));
-                            var solidFillPatternElem = patternCollecotr.FirstOrDefault(e => e.Name == "<Solid fill>");
+                            var solidFillPatternElem = patternCollecotr.FirstOrDefault(e => e.Name == GlobalConst.SolidFillPatternName);
+                            if (solidFillPatternElem != null)
+                            {
+                                var graphicOverride = new OverrideGraphicSettings();
+                                graphicOverride.SetSurfaceForegroundPatternId(solidFillPatternElem.Id);
+                                graphicOverride.SetSurfaceForegroundPatternColor(new Color(255, 0, 0));
 
-                            var graphicOverride = new OverrideGraphicSettings();
-                            graphicOverride.SetSurfaceForegroundPatternId(solidFillPatternElem.Id);
-                            graphicOverride.SetSurfaceForegroundPatternColor(new Color(255, 0, 0));
-
-                            view3d.SetElementOverrides(stirrup.Id, graphicOverride);
+                                view3d.SetElementOverrides(stirrup.Id, graphicOverride);
+                            }
                         }
 
                         trans.Commit();
@@ -158,7 +157,13 @@ namespace RevitParametericDesignPreviewTool
 
     public class ParametricDesignModifierOptions
     {
+        /// <summary>
+        /// 间距，单位毫米
+        /// </summary>
         public double Spacing { get; set; }
+        /// <summary>
+        /// 保护层厚度，单位毫米
+        /// </summary>
         public double CoverSpace { get; set; }
         public ElementId RebarBarTypeId { get; set; }
         public ElementId RebarShapeId { get; set; }
